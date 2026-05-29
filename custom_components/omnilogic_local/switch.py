@@ -140,6 +140,15 @@ class OmniLogicChlorinatorSwitchEntity(OmniLogicSwitchEntity[Chlorinator]):
     def icon(self) -> str | None:
         return "mdi:toggle-switch-variant" if self.is_on else "mdi:toggle-switch-variant-off"
 
+    @property
+    def _extra_state_attributes(self) -> dict[str, Any]:
+        return {
+            "omni_operating_state": str(self.equipment.operating_state),
+            "omni_operating_mode": str(self.equipment.operating_mode),
+            "omni_mode": str(self.equipment.mode),
+            "omni_dispenser_type": str(self.equipment.dispenser_type),
+        }
+
 
 class OmniLogicGroupSwitchEntity(OmniLogicSwitchEntity[Group]):
     """Switch entity for groups."""

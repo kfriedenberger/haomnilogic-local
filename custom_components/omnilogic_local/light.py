@@ -63,8 +63,8 @@ class OmniLogicLightEntity(OmniLogicEntity[ColorLogicLight], LightEntity):
     def is_on(self) -> bool | None:
         return self.equipment.state not in [
             ColorLogicPowerState.OFF,
-            ColorLogicPowerState.POWERING_OFF,
-            ColorLogicPowerState.COOLDOWN,
+            ColorLogicPowerState.WAIT_POWER_DOWN,
+            ColorLogicPowerState.POWER_DOWN,
         ]
 
     @property

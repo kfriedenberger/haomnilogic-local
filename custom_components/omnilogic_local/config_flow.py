@@ -11,7 +11,7 @@ from homeassistant.config_entries import ConfigFlow, OptionsFlow
 from homeassistant.const import CONF_IP_ADDRESS, CONF_NAME, CONF_PORT, CONF_TIMEOUT
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
-from pyomnilogic_local import OmniLogic
+from pyomnilogic_local import OmniLogic, OmniLogicConfig
 
 from .const import DOMAIN
 
@@ -36,7 +36,15 @@ async def validate_input(data: dict[str, Any]) -> None:
 
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
-    omni = OmniLogic(data[CONF_IP_ADDRESS], data[CONF_PORT], data[CONF_TIMEOUT])
+    omni_config = OmniLogicConfig(
+        host=data[CONF_IP_ADDRESS],
+        port=data[CONF_PORT],
+        timeout=data[CONF_TIMEOUT],
+        # The Home Assistant integration only references OmniLogic equipment by their ID number so we
+        # can squelch the warning about duplicate equipment names
+        warn_duplicate_equipment_names=False,
+    )
+    omni = OmniLogic(omni_config)
     try:
         await omni.refresh()
     except TimeoutError as exc:

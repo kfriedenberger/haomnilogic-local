@@ -9,7 +9,7 @@ from homeassistant.const import PERCENTAGE, UnitOfElectricPotential, UnitOfTempe
 from pyomnilogic_local import CSAD, Chlorinator, Filter, Heater, Pump
 from pyomnilogic_local.omnitypes import (
     ChlorinatorDispenserType,
-    ChlorinatorMSPConfigMode,
+    ChlorinatorMode,
     FilterType,
     HeaterType,
     PumpType,
@@ -165,7 +165,13 @@ class OmniLogicChlorinatorTimedPercentNumberEntity(OmniLogicEntity[Chlorinator],
     @property
     def available(self) -> bool:
         # This entity is only available if we have a chlorinator in TIMED mode
-        return super().available and self.equipment.mode == ChlorinatorMSPConfigMode.TIMED
+        return super().available and self.equipment.mode == ChlorinatorMode.TIMED
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        # It's not super common for people to change the mode of their chlorinator, so we only enable
+        # the relevant entity by default based on the mode the chlorinator is in
+        return self.equipment.mode == ChlorinatorMode.TIMED
 
     @property
     def native_value(self) -> float | None:
@@ -197,7 +203,15 @@ class OmniLogicCSADORPNumberEntity(OmniLogicEntity[CSAD], NumberEntity):
         # This entity is only available if we have a chlorinator in ORP_AUTO mode, which means we have a CSAD to control it
         if self._chlorinator is None:
             return False
-        return super().available and self._chlorinator.mode == ChlorinatorMSPConfigMode.ORP_AUTO
+        return super().available and self._chlorinator.mode == ChlorinatorMode.ORP_AUTO
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        # It's not super common for people to change the mode of their chlorinator, so we only enable
+        # the relevant entity by default based on the mode the chlorinator is in
+        if self._chlorinator is None:
+            return False
+        return self._chlorinator.mode == ChlorinatorMode.ORP_AUTO
 
     @property
     def native_value(self) -> float | None:

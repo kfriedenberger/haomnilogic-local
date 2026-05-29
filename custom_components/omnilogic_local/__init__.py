@@ -16,7 +16,7 @@ from homeassistant.const import (
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
-from pyomnilogic_local import OmniLogic
+from pyomnilogic_local import OmniLogic, OmniLogicConfig
 from pyomnilogic_local.omnitypes import OmniType
 
 from .const import BACKYARD_SYSTEM_ID, DOMAIN, KEY_COORDINATOR, SUGGESTED_AREA
@@ -44,7 +44,15 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up OmniLogic Local from a config entry."""
     # Create an API instance
-    omni = OmniLogic(entry.data[CONF_IP_ADDRESS], entry.data[CONF_PORT], entry.data[CONF_TIMEOUT])
+    omni_config = OmniLogicConfig(
+        host=entry.data[CONF_IP_ADDRESS],
+        port=entry.data[CONF_PORT],
+        timeout=entry.data[CONF_TIMEOUT],
+        # The Home Assistant integration only references OmniLogic equipment by their ID number so we
+        # can squelch the warning about duplicate equipment names
+        warn_duplicate_equipment_names=False,
+    )
+    omni = OmniLogic(omni_config)
 
     # Validate that we can talk to the API endpoint
     try:
